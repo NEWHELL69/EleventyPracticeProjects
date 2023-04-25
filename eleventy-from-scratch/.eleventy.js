@@ -4,6 +4,8 @@ const sortByDisplayOrder = require('./src/utils/sort-by-display-order.js');
 const dateFilter = require('./src/filters/date-filter.js');
 const w3DateFilter = require('./src/filters/w3-date-filter.js');
 
+const rssPlugin = require('@11ty/eleventy-plugin-rss');
+
 module.exports = config => {
   // Add filters
   config.addFilter('dateFilter', dateFilter);
@@ -11,7 +13,10 @@ module.exports = config => {
 
   config.addPassthroughCopy('./src/images/');
 
-    // Returns a collection of blog posts in reverse date order
+  // Plugins
+  config.addPlugin(rssPlugin);
+
+  // Returns a collection of blog posts in reverse date order
   config.addCollection('blog', collection => {
     return [...collection.getFilteredByGlob('./src/posts/*.md')].reverse();
   });
@@ -28,6 +33,13 @@ module.exports = config => {
     );
   });
   
+  // Returns a list of people ordered by filename
+  config.addCollection('people', collection => {
+    return collection.getFilteredByGlob('./src/people/*.md').sort((a, b) => {
+      return Number(a.fileSlug) > Number(b.fileSlug) ? 1 : -1;
+    });
+  });
+
   return {
     markdownTemplateEngine: 'njk',
     dataTemplateEngine: 'njk',
